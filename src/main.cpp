@@ -17,10 +17,7 @@ enum class Status
   Recovery
 };
 Status currentStatus = Status::Initializing;
-void setup()
-{
-  Serial.begin(115200);
-}
+
 
 void handleStateMachine()
 {
@@ -99,7 +96,28 @@ void handleStateMachine()
     }   
 }
 
+void applicationTask(void *pvParameters)
+{
+  while(true)
+  {
+    handleStateMachine();
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
+}
+void setup()
+{
+  Serial.begin(115200);
+  xTaskCreate(
+    applicationTask,
+    "handle_state_machine",
+    4096,
+    nullptr,
+    1,
+    nullptr 
+  );
+}
+
 void loop()
 {
-  handleStateMachine(); 
+   vTaskDelay(pdMS_TO_TICKS(1000));
 }
