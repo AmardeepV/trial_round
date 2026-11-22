@@ -36,6 +36,8 @@ struct SensorData
   float gyroZ;
 };
 
+QueueHandle_t sensorQueue = nullptr; // handle through which tasks can excess the queue
+SensorData receivedData;
 
 void handleStateMachine()
 {
@@ -63,6 +65,17 @@ void handleStateMachine()
         }
         accel = imu.getAccelerometer();
         gyro = imu.getGyro();
+
+        SensorData data;
+        data.accelX = accel.X;
+        data.accelY = accel.Y;
+        data.accelZ = accel.Z;
+
+        data.gyroX = gyro.X;
+        data.gyroY = gyro.Y;
+        data.gyroZ = gyro.Z;
+
+        xQueueOverwrite(sensorQueue, &data);
 
         sensorInitialDelay = millis();
       }
@@ -110,23 +123,26 @@ void communicationHandler()
 
   if(((millis() - commInitialDelay) >= commDelayTime) && currentStatus == Status::Running)
       {
+        if(xQueueReceive(sensorQueue, &receivedData, 0) == pdPASS)
+        {
         Serial.println("Accelerometer (g):");
         Serial.print("X: ");
-        Serial.print(accel.X);
+        Serial.print(receivedData.accelX);
         Serial.print(" | Y: ");
-        Serial.print(accel.Y);
+        Serial.print(receivedData.accelY);
         Serial.print(" | Z: ");
-        Serial.println(accel.Z);
+        Serial.println(receivedData.accelZ);
 
         Serial.println("Gyroscope (degrees/s):");
         Serial.print("X: ");
-        Serial.print(gyro.X);
+        Serial.print(receivedData.gyroX);
         Serial.print(" | Y: ");
-        Serial.print(gyro.Y);
+        Serial.print(receivedData.gyroY);
         Serial.print(" | Z: ");
-        Serial.println(gyro.Z);
-
+        Serial.println(receivedData.gyroZ);
         Serial.println("---------------------------");
+        }
+        
         commInitialDelay = millis();
       }
 }
@@ -153,6 +169,17 @@ void communicationTask(void *pvParameters)
 void setup()
 {
   Serial.begin(115200);
+
+  // creating queue
+  sensorQueue = xQueueCreate(1, sizeof(SensorData));
+  //xQueueCreate() returns a queue handle. If it returns nullptr, creation failed, usually because there wasn't enough heap memory.
+
+  if(sensorQueue == nullptr)
+  {
+    Serial.println("Failed to create the queue");
+    return;
+  }
+
   BaseType_t sensor_result = xTaskCreate(
     sensorTask,
     "handle_state_machine",
@@ -179,6 +206,8 @@ void setup()
   {
     Serial.println("Failed to create serial communication task");
   }
+
+  
 }
 
 void loop()
