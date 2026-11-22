@@ -125,22 +125,29 @@ void communicationHandler()
       {
         if(xQueueReceive(sensorQueue, &receivedData, 0) == pdPASS)
         {
-        Serial.println("Accelerometer (g):");
-        Serial.print("X: ");
+        Serial.print("DATA");
+        Serial.print(",");
+        // Serial.println("Accelerometer (g):");
+        // Serial.print("X: ");
         Serial.print(receivedData.accelX);
-        Serial.print(" | Y: ");
+        Serial.print(",");
+        // Serial.print(" | Y: ");
         Serial.print(receivedData.accelY);
-        Serial.print(" | Z: ");
-        Serial.println(receivedData.accelZ);
+        Serial.print(",");
+        //Serial.print(" | Z: ");
+        Serial.print(receivedData.accelZ);
+        Serial.print(",");
 
-        Serial.println("Gyroscope (degrees/s):");
-        Serial.print("X: ");
+        // Serial.println("Gyroscope (degrees/s):");
+        // Serial.print("X: ");
         Serial.print(receivedData.gyroX);
-        Serial.print(" | Y: ");
+        Serial.print(",");
+        //Serial.print(" | Y: ");
         Serial.print(receivedData.gyroY);
-        Serial.print(" | Z: ");
+        Serial.print(",");
+        //Serial.print(" | Z: ");
         Serial.println(receivedData.gyroZ);
-        Serial.println("---------------------------");
+        //Serial.println("---------------------------");
         }
         
         commInitialDelay = millis();
