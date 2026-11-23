@@ -1,0 +1,46 @@
+name: Embedded Project CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-tests:
+    name: Python Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Python Docker image
+        run: docker build -t gate-trial-python .
+
+      - name: Run Python tests
+        run: docker run --rm gate-trial-python
+
+  firmware-build:
+    name: ESP32 Firmware Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build PlatformIO Docker image
+        run: docker build -f Dockerfile.platformio -t gate-trial-firmware .
+
+      - name: Export firmware artifacts
+        run: |
+          mkdir -p firmware_output
+          docker run --rm \
+            -v "$PWD/firmware_output:/output" \
+            gate-trial-firmware
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32-firmware
+          path: firmware_output/
