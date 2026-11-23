@@ -10,7 +10,7 @@ def test_valid_sensor_data():
     accel_range_message = "DATA,2.5,-0.01,-0.13,-2.85,1.31,-0.04"
     gyro_range_message = "DATA,1.01,-0.01,-0.13,300,1.31,-0.04"
 
-    output = parse_sensor_data(gyro_range_message)
+    output = parse_sensor_data(message)
 
     assert output is not None
     assert output["accel_x"] == 1.01

@@ -1,0 +1,17 @@
+
+FROM python:3.12-slim
+
+WORKDIR /workspace
+
+# Install PlatformIO Core
+RUN pip install --no-cache-dir platformio
+
+# Copy firmware project files
+COPY platformio.ini .
+COPY src/ ./src/
+COPY include/ ./include/
+COPY lib/ ./lib/
+
+# Compile the ESP32 firmware
+RUN pio run
+CMD ["sh", "-c", "mkdir -p /output && cp .pio/build/featheresp32/firmware.bin /output/ && cp .pio/build/featheresp32/firmware.elf /output/"]

@@ -1,0 +1,10 @@
+
+.venv/
+.pio/
+.vscode/
+.git/
+__pycache__/
+.pytest_cache/
+*.pyc
+sensor_data.csv
+
